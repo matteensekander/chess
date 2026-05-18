@@ -4,84 +4,549 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#1a1a2e;--panel:#16213e;--panel2:#0f3460;--accent:#e94560;
-  --light-sq:#f0d9b5;--dark-sq:#b58863;--sel:#7fc97f;--move:#cdd26a;
-  --legal:rgba(0,0,0,0.2);--check:#e94560;--last-from:#cdd26a;--last-to:#aaa23a;
-  --text:#eee;--text2:#aaa;--border:#333;
+  /* Surfaces */
+  --bg:#0f1320;
+  --panel:#1a1f2e;
+  --panel-2:#222839;
+  --panel-3:#2a3147;
+  --border:#2a3147;
+  --border-strong:#374060;
+  /* Text */
+  --text:#eef1f7;
+  --text-2:#aab3c5;
+  --text-3:#6b7488;
+  /* Accent */
+  --accent:#7aa2f7;
+  --accent-2:#5b8def;
+  --gold:#f5c542;
+  --danger:#ef4444;
+  --success:#7fb069;
+  /* Board */
+  --light-sq:#f0d9b5;
+  --dark-sq:#b58863;
+  --sel:#f5c542;
+  --legal:rgba(20,20,20,0.28);
+  --last-from:rgba(170,200,120,0.55);
+  --last-to:rgba(170,200,120,0.55);
+  --check:#ef4444;
+  /* Frame */
+  --frame-1:#3a2418;
+  --frame-2:#26170f;
+  --frame-edge:#1a0f08;
+  --shadow:0 24px 60px -20px rgba(0,0,0,.6),0 8px 20px -8px rgba(0,0,0,.4);
 }
 .light-theme{
-  --bg:#f5f5f0;--panel:#e8e8e0;--panel2:#d0d0c8;--accent:#c0392b;
-  --text:#222;--text2:#555;--border:#ccc;
+  --bg:#eef0f5;
+  --panel:#ffffff;
+  --panel-2:#f5f6fa;
+  --panel-3:#e7eaf1;
+  --border:#e2e6ee;
+  --border-strong:#cbd2df;
+  --text:#1a1f2e;
+  --text-2:#525a6e;
+  --text-3:#8a93a6;
+  --accent:#3460dc;
+  --accent-2:#2848b8;
+  --shadow:0 10px 28px -10px rgba(15,20,40,.18),0 4px 10px -4px rgba(15,20,40,.08);
 }
-body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center}
-#app{display:flex;gap:16px;padding:16px;max-width:1100px;width:100%;flex-wrap:wrap;justify-content:center}
-#board-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
-#board-container{display:flex;align-items:center;gap:4px}
-#board{display:grid;grid-template-columns:repeat(8,1fr);width:min(65vw,520px);height:min(65vw,520px);border:2px solid var(--border);cursor:pointer;user-select:none}
-.sq{display:flex;align-items:center;justify-content:center;position:relative;font-size:clamp(28px,5.5vw,54px);transition:background 0.1s}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:24px 16px;
+}
+/* Background ambience */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(900px 600px at 15% -10%,rgba(122,162,247,.10),transparent 60%),
+    radial-gradient(900px 600px at 110% 110%,rgba(245,197,66,.06),transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+.light-theme body::before{display:none}
+
+/* ── Top bar ───────────────────────────────────────── */
+#topbar{
+  width:100%;
+  max-width:1180px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 4px 18px;
+  position:relative;
+  z-index:1;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+.brand-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,#f5c542,#d99c1b);
+  display:flex;align-items:center;justify-content:center;
+  color:#1a0f08;font-size:18px;line-height:1;
+  box-shadow:0 4px 12px -4px rgba(245,197,66,.55);
+}
+.brand-name{font-size:16px;color:var(--text)}
+.brand-name .dot{color:var(--accent)}
+.topbar-right{display:flex;gap:8px;align-items:center}
+
+/* ── App layout ────────────────────────────────────── */
+#app{
+  display:grid;
+  grid-template-columns:auto 320px;
+  gap:24px;
+  align-items:start;
+  max-width:1180px;
+  width:100%;
+  position:relative;
+  z-index:1;
+}
+
+/* ── Board frame ───────────────────────────────────── */
+#board-wrap{display:flex;flex-direction:column;gap:14px;min-width:0}
+#board-frame{
+  --board-size:min(72vh,640px);
+  --frame-pad:30px;
+  width:calc(var(--board-size) + var(--frame-pad)*2);
+  padding:var(--frame-pad);
+  background:
+    linear-gradient(135deg,var(--frame-1),var(--frame-2));
+  border-radius:14px;
+  position:relative;
+  box-shadow:var(--shadow),inset 0 0 0 1px rgba(255,220,180,.06);
+}
+#board-frame::before{
+  /* inner bevel */
+  content:'';
+  position:absolute;
+  inset:calc(var(--frame-pad) - 8px);
+  border-radius:6px;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.55),
+    inset 0 0 0 2px rgba(255,220,180,.05),
+    0 0 0 1px rgba(0,0,0,.4);
+  pointer-events:none;
+}
+.light-theme #board-frame{
+  background:linear-gradient(135deg,#6b4226,#3f2616);
+}
+
+/* ── Board itself ──────────────────────────────────── */
+#board-stage{
+  position:relative;
+  width:var(--board-size);
+  height:var(--board-size);
+  user-select:none;
+}
+#board{
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  grid-template-rows:repeat(8,1fr);
+  width:100%;
+  height:100%;
+  cursor:pointer;
+  background:#000;
+  overflow:hidden;
+}
+.sq{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:calc(var(--board-size) / 8 * 0.82);
+  line-height:1;
+}
 .sq.light{background:var(--light-sq)}
 .sq.dark{background:var(--dark-sq)}
-.sq.selected{background:var(--sel)!important}
-.sq.last-from{background:var(--last-from)!important}
-.sq.last-to{background:var(--last-to)!important}
-.sq.in-check{background:var(--check)!important}
-.sq.legal::after{content:'';position:absolute;width:32%;height:32%;border-radius:50%;background:var(--legal);pointer-events:none}
-.sq.legal-cap::after{content:'';position:absolute;inset:0;border-radius:50%;border:5px solid var(--legal);pointer-events:none}
-.piece{cursor:grab;line-height:1;transition:opacity 0.1s;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-.piece.dragging{opacity:0}
-.coord-file{display:flex;width:min(65vw,520px);justify-content:space-around;padding:0 0 2px}
-.coord-rank{display:flex;flex-direction:column;justify-content:space-around;height:min(65vw,520px);padding:2px 0}
-.coord-file span,.coord-rank span{font-size:11px;color:var(--text2);width:14px;text-align:center}
-#sidebar{display:flex;flex-direction:column;gap:10px;width:260px;min-width:200px}
-.panel{background:var(--panel);border-radius:10px;padding:12px;border:1px solid var(--border)}
-.panel h3{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-#status{font-size:15px;font-weight:600;color:var(--accent)}
-#turn-indicator{font-size:13px;color:var(--text2);margin-top:2px}
-.captured-row{display:flex;flex-wrap:wrap;gap:2px;min-height:24px;font-size:18px;align-items:center}
-.material-score{font-size:12px;color:var(--accent);font-weight:700}
-#move-list{max-height:200px;overflow-y:auto;font-size:12px;font-family:monospace;line-height:1.8}
-.move-row{display:flex;gap:4px;border-radius:4px;padding:1px 4px}
-.move-row:nth-child(odd){background:rgba(255,255,255,.03)}
-.move-num{color:var(--text2);min-width:24px}
-.move-san{cursor:pointer;padding:1px 4px;border-radius:3px;color:var(--text)}
-.move-san:hover{background:rgba(255,255,255,.1)}
-.move-san.current{background:var(--accent);color:#fff}
-.btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 12px;cursor:pointer;font-size:13px;transition:background .15s;width:100%}
-.btn:hover{background:var(--accent);color:#fff}
-.btn-row{display:flex;gap:6px}
-.btn-row .btn{width:auto;flex:1}
-select{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;font-size:13px;width:100%}
-.clock-row{display:flex;gap:8px}
-.clock-box{flex:1;text-align:center;background:var(--panel2);border-radius:8px;padding:8px;border:2px solid transparent;transition:border .2s}
-.clock-box.active{border-color:var(--accent)}
-.clock-label{font-size:11px;color:var(--text2)}
-.clock-time{font-size:22px;font-weight:700;font-family:monospace}
-.clock-time.low{color:var(--accent)}
-#drag-piece{position:fixed;pointer-events:none;font-size:54px;z-index:999;transform:translate(-50%,-50%);text-shadow:0 2px 6px rgba(0,0,0,.6);display:none}
-#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
-#modal.show{display:flex}
-#modal-box{background:var(--panel);border-radius:12px;padding:24px;text-align:center;border:1px solid var(--border)}
-#modal-box h2{margin-bottom:16px;font-size:18px}
-#promo-choices{display:flex;gap:12px;justify-content:center;font-size:52px;cursor:pointer}
-#promo-choices span:hover{transform:scale(1.2);display:inline-block}
-#gameover-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
-#gameover-modal.show{display:flex}
-#gameover-box{background:var(--panel);border-radius:12px;padding:32px 40px;text-align:center;border:1px solid var(--border)}
-#gameover-box h2{font-size:24px;margin-bottom:8px;color:var(--accent)}
-#gameover-box p{color:var(--text2);margin-bottom:20px}
-#controls{display:flex;flex-wrap:wrap;gap:6px}
-label{font-size:12px;color:var(--text2)}
-.setting-row{display:flex;flex-direction:column;gap:4px}
-@media(max-width:700px){
-  #app{flex-direction:column;align-items:center;gap:10px}
-  #sidebar{width:min(65vw,520px)}
-  #board{width:min(95vw,520px);height:min(95vw,520px)}
-  .coord-file{width:min(95vw,520px)}
-  .coord-rank{height:min(95vw,520px)}
+
+/* coord labels embedded in corners of squares */
+.sq .coord{
+  position:absolute;
+  font-family:'Inter',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.5px;
+  pointer-events:none;
+  user-select:none;
+  opacity:.85;
 }
+.sq.light .coord{color:#9c7a4d}
+.sq.dark  .coord{color:#f0d9b5}
+.sq .coord.file{right:4px;bottom:2px}
+.sq .coord.rank{left:4px;top:2px}
+
+/* highlights */
+.sq.last-from::before,
+.sq.last-to::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:var(--last-to);
+  pointer-events:none;
+}
+.sq.selected::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(245,197,66,.55);
+  pointer-events:none;
+  box-shadow:inset 0 0 0 3px rgba(245,197,66,.85);
+}
+.sq.in-check::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(closest-side,rgba(239,68,68,.85),rgba(239,68,68,.0) 70%);
+  pointer-events:none;
+}
+.sq.legal::after{
+  content:'';
+  position:absolute;
+  width:30%;height:30%;
+  border-radius:50%;
+  background:var(--legal);
+  pointer-events:none;
+}
+.sq.legal-cap::after{
+  content:'';
+  position:absolute;
+  inset:6%;
+  border-radius:50%;
+  border:4px solid var(--legal);
+  pointer-events:none;
+}
+
+/* pieces — solid colors, minimal outline, no shine */
+.piece{
+  position:relative;
+  z-index:1;
+  cursor:grab;
+  line-height:1;
+  font-family:'Segoe UI Symbol','Apple Symbols','Noto Sans Symbols 2',sans-serif;
+  transition:transform .08s ease;
+}
+.piece:active{cursor:grabbing}
+.piece.dragging{opacity:0}
+.piece.white{
+  color:#ffffff;
+  -webkit-text-stroke:1.25px #1a1a1a;
+  text-shadow:none;
+}
+.piece.black{
+  color:#1a1a1a;
+  -webkit-text-stroke:0;
+  text-shadow:none;
+}
+
+/* drag ghost */
+#drag-piece{
+  position:fixed;
+  pointer-events:none;
+  font-size:64px;
+  z-index:999;
+  transform:translate(-50%,-50%) scale(1.08);
+  font-family:'Segoe UI Symbol','Apple Symbols','Noto Sans Symbols 2',sans-serif;
+  display:none;
+  line-height:1;
+}
+#drag-piece.white{
+  color:#fff;-webkit-text-stroke:1.25px #1a1a1a;
+}
+#drag-piece.black{
+  color:#1a1a1a;-webkit-text-stroke:0;
+}
+
+/* ── Player strip (above + below board) ────────────── */
+.player-strip{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+}
+.player-strip .who{
+  display:flex;align-items:center;gap:10px;flex:1;min-width:0;
+}
+.avatar{
+  width:36px;height:36px;border-radius:8px;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;
+}
+.avatar.w{background:#f5f0e6;color:#1a1f2e;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.avatar.b{background:#0b0e16;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.player-meta{display:flex;flex-direction:column;gap:1px;min-width:0}
+.player-name{font-size:14px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player-elo{font-size:11px;color:var(--text-3);font-weight:500}
+.player-cap{
+  display:flex;align-items:center;gap:1px;
+  font-family:'Segoe UI Symbol','Noto Sans Symbols 2',sans-serif;
+  font-size:18px;line-height:1;color:var(--text-2);
+  flex:1;justify-content:center;flex-wrap:wrap;
+  max-height:24px;overflow:hidden;
+}
+.player-cap .adv{
+  font-family:'Inter',sans-serif;
+  font-size:11px;font-weight:700;color:var(--text-2);
+  margin-left:4px;
+}
+.player-clock{
+  font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;
+  font-size:24px;font-weight:700;letter-spacing:.5px;
+  background:var(--panel-2);
+  padding:6px 14px;border-radius:8px;
+  border:2px solid transparent;
+  color:var(--text);
+  min-width:96px;text-align:center;
+  font-variant-numeric:tabular-nums;
+  transition:border-color .2s,background .2s;
+}
+.player-strip.active .player-clock{
+  border-color:var(--accent);
+  background:rgba(122,162,247,.12);
+  color:#fff;
+}
+.light-theme .player-strip.active .player-clock{color:var(--accent)}
+.player-clock.low{color:var(--danger);border-color:var(--danger)!important;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.6}}
+
+/* ── Bottom action bar ─────────────────────────────── */
+#action-bar{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:8px;
+}
+.action{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 10px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:13px;font-weight:600;
+  border-radius:10px;
+  cursor:pointer;
+  transition:background .15s,border-color .15s,transform .05s;
+  font-family:inherit;
+}
+.action:hover{background:var(--panel-2);border-color:var(--border-strong)}
+.action:active{transform:translateY(1px)}
+.action svg{width:16px;height:16px;flex:none}
+.action.danger:hover{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.5);color:var(--danger)}
+.draw-btn{
+  width:100%;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px;
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  border:1px solid var(--accent-2);
+  color:#fff;
+  font-size:14px;font-weight:700;
+  border-radius:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px -8px rgba(122,162,247,.7);
+  transition:transform .05s,filter .15s;
+  font-family:inherit;
+}
+.draw-btn:hover{filter:brightness(1.05)}
+.draw-btn:active{transform:translateY(1px)}
+
+/* ── Sidebar ───────────────────────────────────────── */
+#sidebar{
+  display:flex;flex-direction:column;gap:14px;
+  position:sticky;top:24px;
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.card-title{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;
+  color:var(--text-3);
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  font-weight:700;
+  margin-bottom:12px;
+}
+.card-title .badge{
+  font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:99px;
+  background:var(--panel-2);color:var(--text-2);
+  letter-spacing:.4px;
+}
+
+/* status card */
+.status-card{
+  display:flex;align-items:center;gap:12px;
+}
+.status-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 4px rgba(122,162,247,.18);
+}
+.status-dot.b{background:#0b0e16;box-shadow:0 0 0 4px rgba(255,255,255,.12)}
+.status-dot.w{background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.18)}
+.status-card .info{flex:1;min-width:0}
+.status-label{font-size:12px;color:var(--text-3);font-weight:500}
+.status-value{font-size:16px;font-weight:700;color:var(--text);margin-top:2px}
+.status-move{font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;font-weight:600}
+
+/* form rows */
+.form-row{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.form-row:first-child{margin-top:0}
+.form-row label{
+  font-size:11px;color:var(--text-3);font-weight:600;
+  text-transform:uppercase;letter-spacing:.8px;
+}
+select,.select{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:8px;
+  padding:9px 10px;
+  font-size:13px;
+  font-family:inherit;
+  font-weight:500;
+  width:100%;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aab3c5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  padding-right:32px;
+}
+select:hover{border-color:var(--border-strong)}
+select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,162,247,.18)}
+
+/* move history */
+#move-list{
+  max-height:240px;
+  overflow-y:auto;
+  font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;
+  font-size:13px;
+  background:var(--panel-2);
+  border-radius:10px;
+  padding:6px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border-strong) transparent;
+}
+#move-list::-webkit-scrollbar{width:6px}
+#move-list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+.move-row{
+  display:grid;
+  grid-template-columns:32px 1fr 1fr;
+  gap:4px;
+  padding:3px 6px;
+  border-radius:6px;
+  align-items:center;
+}
+.move-row:nth-child(even){background:rgba(255,255,255,.02)}
+.light-theme .move-row:nth-child(even){background:rgba(0,0,0,.025)}
+.move-num{color:var(--text-3);font-size:12px;font-weight:600}
+.move-san{
+  cursor:pointer;
+  padding:3px 6px;
+  border-radius:5px;
+  color:var(--text);
+  font-weight:500;
+  transition:background .1s;
+}
+.move-san:hover{background:var(--panel-3)}
+.move-san.current{background:var(--accent);color:#fff;font-weight:700}
+.move-list-empty{
+  text-align:center;color:var(--text-3);font-size:12px;
+  padding:18px;font-family:inherit;
+}
+
+/* segmented toggle for game-over offer-draw etc removed; using button */
+
+/* segmented (dark/light) */
+.seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:2px}
+.seg button{
+  background:transparent;border:0;color:var(--text-2);
+  padding:6px 10px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;
+  font-family:inherit;
+  display:flex;align-items:center;gap:4px;
+}
+.seg button.active{background:var(--panel-3);color:var(--text)}
+
+/* ── Modals ────────────────────────────────────────── */
+#modal,#gameover-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,10,18,.7);backdrop-filter:blur(6px);
+  z-index:100;align-items:center;justify-content:center;padding:20px;
+}
+#modal.show,#gameover-modal.show{display:flex}
+#modal-box,#gameover-box{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:28px 32px;
+  text-align:center;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.6);
+  max-width:380px;width:100%;
+}
+#modal-box h2,#gameover-box h2{font-size:20px;font-weight:700;margin-bottom:6px;color:var(--text)}
+#gameover-box .result{
+  display:inline-block;
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:4px 12px;border-radius:99px;
+  background:var(--panel-2);color:var(--accent);
+  margin-bottom:10px;
+}
+#gameover-box p{color:var(--text-2);margin-bottom:22px;font-size:14px}
+#promo-choices{display:flex;gap:10px;justify-content:center;margin-top:14px}
+#promo-choices span{
+  width:64px;height:64px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:48px;line-height:1;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  transition:transform .08s,border-color .15s,background .15s;
+  font-family:'Segoe UI Symbol','Noto Sans Symbols 2',sans-serif;
+}
+#promo-choices span:hover{transform:translateY(-3px);border-color:var(--accent);background:var(--panel-3)}
+#gameover-box button{
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  border:0;color:#fff;font-weight:700;font-size:14px;
+  padding:12px 24px;border-radius:10px;cursor:pointer;font-family:inherit;
+  width:100%;
+}
+
+/* responsive */
+@media(max-width:980px){
+  #app{grid-template-columns:1fr;justify-items:center}
+  #sidebar{width:100%;max-width:560px;position:static}
+  #board-frame{--board-size:min(88vw,560px)}
+}
+@media(max-width:520px){
+  #board-frame{--frame-pad:18px}
+  body{padding:12px 8px}
+  .player-clock{font-size:20px;min-width:80px;padding:5px 10px}
+  #action-bar{grid-template-columns:1fr 1fr}
+}
+
+.sr-only{position:absolute;left:-9999px}
 </style>
 </head>
 <body>
@@ -89,62 +554,114 @@ label{font-size:12px;color:var(--text2)}
 <div id="modal">
   <div id="modal-box">
     <h2>Promote Pawn</h2>
+    <p style="color:var(--text-2);font-size:13px;margin-top:4px">Choose your piece</p>
     <div id="promo-choices"></div>
   </div>
 </div>
 <div id="gameover-modal">
   <div id="gameover-box">
+    <div class="result" id="go-result">Result</div>
     <h2 id="go-title"></h2>
     <p id="go-msg"></p>
-    <button class="btn" onclick="newGame()">New Game</button>
+    <button onclick="newGame()">Start New Game</button>
   </div>
 </div>
-<div id="app">
-  <div id="board-wrap">
-    <div id="board-container">
-      <div class="coord-rank" id="rank-labels"></div>
-      <div id="board"></div>
-    </div>
-    <div class="coord-file" id="file-labels"></div>
-    <div class="btn-row" style="width:min(65vw,520px)">
-      <button class="btn" onclick="flipBoard()">⇄ Flip</button>
-      <button class="btn" onclick="newGame()">New Game</button>
-      <button class="btn" onclick="undoMove()">↩ Undo</button>
-      <button class="btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
+
+<div id="topbar">
+  <div class="brand">
+    <div class="brand-mark">♞</div>
+    <div class="brand-name">Gambit<span class="dot">.</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="seg" role="tablist" aria-label="Theme">
+      <button id="seg-dark" class="active" onclick="setTheme(true)" title="Dark theme">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Dark
+      </button>
+      <button id="seg-light" onclick="setTheme(false)" title="Light theme">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        Light
+      </button>
     </div>
   </div>
-  <div id="sidebar">
-    <div class="panel">
-      <div id="status">White's Turn</div>
-      <div id="turn-indicator">Move 1</div>
-    </div>
-    <div class="panel">
-      <h3>Clock</h3>
-      <div class="clock-row">
-        <div class="clock-box" id="clock-black"><div class="clock-label">Black</div><div class="clock-time" id="time-black">10:00</div></div>
-        <div class="clock-box active" id="clock-white"><div class="clock-label">White</div><div class="clock-time" id="time-white">10:00</div></div>
+</div>
+
+<div id="app">
+  <div id="board-wrap">
+    <!-- Top player (opponent) -->
+    <div class="player-strip" id="player-top">
+      <div class="who">
+        <div class="avatar b" id="avatar-top">B</div>
+        <div class="player-meta">
+          <div class="player-name" id="name-top">Black</div>
+          <div class="player-elo" id="elo-top">Player · 1500</div>
+        </div>
       </div>
-      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-        <select id="time-select" onchange="setTimeControl()">
-          <option value="300">5 min</option>
-          <option value="600" selected>10 min</option>
-          <option value="900">15 min</option>
-          <option value="1800">30 min</option>
-          <option value="0">No clock</option>
-        </select>
-        <button class="btn" id="clock-btn" onclick="toggleClock()" style="white-space:nowrap">Start</button>
+      <div class="player-cap" id="cap-top"></div>
+      <div class="player-clock" id="clock-top">10:00</div>
+    </div>
+
+    <div id="board-frame">
+      <div id="board-stage">
+        <div id="board"></div>
       </div>
     </div>
-    <div class="panel">
-      <h3>Game Mode</h3>
-      <div class="setting-row">
+
+    <!-- Bottom player (you) -->
+    <div class="player-strip active" id="player-bottom">
+      <div class="who">
+        <div class="avatar w" id="avatar-bottom">W</div>
+        <div class="player-meta">
+          <div class="player-name" id="name-bottom">White</div>
+          <div class="player-elo" id="elo-bottom">You · 1500</div>
+        </div>
+      </div>
+      <div class="player-cap" id="cap-bottom"></div>
+      <div class="player-clock" id="clock-bottom">10:00</div>
+    </div>
+
+    <div id="action-bar">
+      <button class="action" onclick="flipBoard()" title="Flip board">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        Flip
+      </button>
+      <button class="action" onclick="newGame()" title="New game">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        New Game
+      </button>
+      <button class="action" onclick="undoMove()" title="Undo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-6.7L3 9"/></svg>
+        Undo
+      </button>
+      <button class="action danger" onclick="resign()" title="Resign">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h12l-2 4 2 4H4"/></svg>
+        Resign
+      </button>
+    </div>
+  </div>
+
+  <aside id="sidebar">
+    <div class="card">
+      <div class="card-title">Status <span class="badge" id="badge-move">Move 1</span></div>
+      <div class="status-card">
+        <div class="status-dot w" id="status-dot"></div>
+        <div class="info">
+          <div class="status-label">To move</div>
+          <div class="status-value" id="status">White's turn</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Game Mode</div>
+      <div class="form-row">
         <select id="mode-select" onchange="changeMode()">
-          <option value="pvp">2 Players (Local)</option>
+          <option value="pvp">Two Players (Local)</option>
           <option value="ai">vs Computer</option>
         </select>
       </div>
-      <div id="ai-options" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:6px">
-        <div class="setting-row">
+      <div id="ai-options" style="display:none">
+        <div class="form-row">
           <label>Difficulty</label>
           <select id="diff-select">
             <option value="1">Easy</option>
@@ -152,7 +669,7 @@ label{font-size:12px;color:var(--text2)}
             <option value="5">Hard</option>
           </select>
         </div>
-        <div class="setting-row">
+        <div class="form-row">
           <label>Play as</label>
           <select id="side-select" onchange="changeSide()">
             <option value="w">White</option>
@@ -160,28 +677,48 @@ label{font-size:12px;color:var(--text2)}
           </select>
         </div>
       </div>
-    </div>
-    <div class="panel">
-      <h3>Captured</h3>
-      <div style="margin-bottom:6px">
-        <div style="font-size:12px;color:var(--text2)">White captured:</div>
-        <div class="captured-row" id="cap-white"></div>
-        <div class="material-score" id="mat-white"></div>
-      </div>
-      <div>
-        <div style="font-size:12px;color:var(--text2)">Black captured:</div>
-        <div class="captured-row" id="cap-black"></div>
-        <div class="material-score" id="mat-black"></div>
+      <div class="form-row">
+        <label>Time Control</label>
+        <select id="time-select" onchange="setTimeControl()">
+          <option value="180">3 min · Blitz</option>
+          <option value="300">5 min · Blitz</option>
+          <option value="600" selected>10 min · Rapid</option>
+          <option value="900">15 min · Rapid</option>
+          <option value="1800">30 min · Classical</option>
+          <option value="0">No clock</option>
+        </select>
       </div>
     </div>
-    <div class="panel">
-      <h3>Move History</h3>
-      <div id="move-list"></div>
+
+    <div class="card">
+      <div class="card-title">Move History <span class="badge" id="badge-moves">0</span></div>
+      <div id="move-list"><div class="move-list-empty">No moves yet</div></div>
     </div>
-    <div class="panel">
-      <button class="btn" onclick="offerDraw()">½ Offer Draw</button>
+
+    <div class="card" style="padding:14px">
+      <button class="draw-btn" onclick="offerDraw()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>
+        Offer Draw
+      </button>
     </div>
-  </div>
+  </aside>
+</div>
+
+<!-- Hidden compatibility nodes (kept so legacy JS that references them doesn't error) -->
+<div class="sr-only">
+  <div id="rank-labels"></div>
+  <div id="file-labels"></div>
+  <div id="cap-white"></div>
+  <div id="cap-black"></div>
+  <div id="mat-white"></div>
+  <div id="mat-black"></div>
+  <div id="time-white"></div>
+  <div id="time-black"></div>
+  <div id="clock-white"></div>
+  <div id="clock-black"></div>
+  <button id="clock-btn"></button>
+  <div id="turn-indicator"></div>
+  <button id="theme-btn"></button>
 </div>
 
 <script>
@@ -675,6 +1212,9 @@ let darkMode=true;
 // ─────────────────────────────────────────────
 function boardEl(){ return document.getElementById('board'); }
 
+// Use FILLED glyphs for both colors and style with .white / .black for outline
+const FILLED = {K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟'};
+
 function render(){
   const board=boardEl();
   board.innerHTML='';
@@ -701,11 +1241,26 @@ function render(){
         const piece=gs.board[r][c];
         sq.classList.add(piece?'legal-cap':'legal');
       }
+      // Embedded corner coord labels (a-h on bottom row, 1-8 on left column)
+      const isBottomRow = row===7;
+      const isLeftCol   = col===0;
+      if(isBottomRow){
+        const co=document.createElement('span');
+        co.className='coord file';
+        co.textContent=FILES[c];
+        sq.appendChild(co);
+      }
+      if(isLeftCol){
+        const co=document.createElement('span');
+        co.className='coord rank';
+        co.textContent=8-r;
+        sq.appendChild(co);
+      }
       const p=gs.board[r][c];
       if(p){
         const span=document.createElement('span');
-        span.className='piece';
-        span.textContent=PIECES[p.c+p.t];
+        span.className='piece '+(p.c==='w'?'white':'black');
+        span.textContent=FILLED[p.t];
         span.dataset.r=r; span.dataset.c=c;
         // Drag events
         span.addEventListener('mousedown',onPieceMouseDown);
@@ -716,56 +1271,96 @@ function render(){
       board.appendChild(sq);
     }
   }
-  updateCoords();
   updateSidebar();
 }
 
-function updateCoords(){
-  const ranks=document.getElementById('rank-labels');
-  const files=document.getElementById('file-labels');
-  ranks.innerHTML='';
-  files.innerHTML='';
-  for(let i=0;i<8;i++){
-    const r=document.createElement('span');
-    r.textContent=flipped?i+1:8-i;
-    ranks.appendChild(r);
-  }
-  for(let i=0;i<8;i++){
-    const f=document.createElement('span');
-    f.textContent=FILES[flipped?7-i:i];
-    files.appendChild(f);
-  }
-}
+function updateCoords(){/* embedded in render now */}
 
 function updateSidebar(){
   // Status
   const statusEl=document.getElementById('status');
-  const turnEl=document.getElementById('turn-indicator');
-  if(gs.gameOver){
-    // already shown in modal
-  } else {
-    statusEl.textContent=(gs.turn==='w'?'White':'Black')+"'s Turn";
-    turnEl.textContent='Move '+gs.fullMove;
+  const dotEl=document.getElementById('status-dot');
+  const badgeMove=document.getElementById('badge-move');
+  if(!gs.gameOver){
+    if(mode==='ai'&&gs.turn===aiColor&&aiThinking){
+      statusEl.textContent='Computer thinking…';
+    } else {
+      statusEl.textContent=(gs.turn==='w'?'White':'Black')+"'s turn";
+    }
+    if(gs.inCheck(gs.turn)) statusEl.textContent+=' · Check';
+    dotEl.className='status-dot '+gs.turn;
+    badgeMove.textContent='Move '+gs.fullMove;
   }
-  // Captured
-  const capW=document.getElementById('cap-white');
-  const capB=document.getElementById('cap-black');
-  capW.innerHTML=gs.capturedByWhite.map(t=>PIECES['b'+t]).join('');
-  capB.innerHTML=gs.capturedByBlack.map(t=>PIECES['w'+t]).join('');
-  // Material advantage
+
+  // Determine which player strip is at top vs bottom based on flip
+  // Bottom = white when not flipped, black when flipped
+  const bottomColor = flipped?'b':'w';
+  const topColor    = flipped?'w':'b';
+
+  // Names / avatars
+  const playerLabel=(c)=>{
+    if(mode==='ai') return c===aiColor?'Computer':'You';
+    return c==='w'?'White':'Black';
+  };
+  const eloLabel=(c)=>{
+    if(mode==='ai') return c===aiColor?('Engine · '+({1:'800',3:'1500',5:'2000'}[aiDepth]||'1500')):'You · 1500';
+    return (c==='w'?'White':'Black')+' · 1500';
+  };
+  document.getElementById('name-top').textContent=playerLabel(topColor);
+  document.getElementById('name-bottom').textContent=playerLabel(bottomColor);
+  document.getElementById('elo-top').textContent=eloLabel(topColor);
+  document.getElementById('elo-bottom').textContent=eloLabel(bottomColor);
+  const avTop=document.getElementById('avatar-top');
+  const avBot=document.getElementById('avatar-bottom');
+  avTop.className='avatar '+topColor;
+  avBot.className='avatar '+bottomColor;
+  avTop.textContent=topColor.toUpperCase();
+  avBot.textContent=bottomColor.toUpperCase();
+
+  // Captured: shown beside the player who DID the capturing
+  // capturedByWhite = pieces white took (black pieces) → show on white strip
+  const capOnWhite=gs.capturedByWhite.map(t=>`<span class="black-pc">${FILLED[t]}</span>`).join('');
+  const capOnBlack=gs.capturedByBlack.map(t=>`<span class="white-pc">${FILLED[t]}</span>`).join('');
   const wVal=gs.capturedByWhite.reduce((s,t)=>s+(PIECE_VAL[t]||0),0);
   const bVal=gs.capturedByBlack.reduce((s,t)=>s+(PIECE_VAL[t]||0),0);
-  document.getElementById('mat-white').textContent=wVal>bVal?`+${wVal-bVal}`:'';
-  document.getElementById('mat-black').textContent=bVal>wVal?`+${bVal-wVal}`:'';
+  const advW=wVal>bVal?`<span class="adv">+${wVal-bVal}</span>`:'';
+  const advB=bVal>wVal?`<span class="adv">+${bVal-wVal}</span>`:'';
+  const renderCap=(c)=>{
+    if(c==='w') return capOnWhite+advW;
+    return capOnBlack+advB;
+  };
+  document.getElementById('cap-top').innerHTML=renderCap(topColor);
+  document.getElementById('cap-bottom').innerHTML=renderCap(bottomColor);
+
+  // Active strip
+  document.getElementById('player-top').classList.toggle('active', !gs.gameOver && gs.turn===topColor);
+  document.getElementById('player-bottom').classList.toggle('active', !gs.gameOver && gs.turn===bottomColor);
+
   // Move history
   renderMoveList();
   // Clock display
   updateClockDisplay();
 }
 
+// captured piece styling — embed via small CSS class lookup
+const _capCSS = document.createElement('style');
+_capCSS.textContent = `
+.player-cap .white-pc{color:#ffffff;-webkit-text-stroke:1px #1a1a1a}
+.player-cap .black-pc{color:#1a1a1a;-webkit-text-stroke:0}
+.light-theme .player-cap .black-pc{color:#1a1a1a}
+.light-theme .player-cap .white-pc{color:#fff;-webkit-text-stroke:1px #1a1a1a}
+`;
+document.head.appendChild(_capCSS);
+
 function renderMoveList(){
   const ml=document.getElementById('move-list');
+  const badge=document.getElementById('badge-moves');
+  if(badge) badge.textContent=sanHistory.length;
   ml.innerHTML='';
+  if(!sanHistory.length){
+    ml.innerHTML='<div class="move-list-empty">No moves yet</div>';
+    return;
+  }
   for(let i=0;i<sanHistory.length;i+=2){
     const row=document.createElement('div');
     row.className='move-row';
@@ -778,13 +1373,17 @@ function renderMoveList(){
     w.textContent=sanHistory[i];
     w.onclick=()=>gotoMove(i);
     row.appendChild(w);
+    const b=document.createElement('span');
     if(i+1<sanHistory.length){
-      const b=document.createElement('span');
       b.className='move-san'+(i+1===currentMoveIdx?' current':'');
       b.textContent=sanHistory[i+1];
       b.onclick=()=>gotoMove(i+1);
-      row.appendChild(b);
+    } else {
+      b.className='move-san';
+      b.style.visibility='hidden';
+      b.textContent='—';
     }
+    row.appendChild(b);
     ml.appendChild(row);
   }
   ml.scrollTop=ml.scrollHeight;
@@ -850,8 +1449,8 @@ function executeMove(fr,fc,tr,tc,promo){
   else playSound('move');
   // Check detection
   if(gs.inCheck(gs.turn)) playSound('check');
-  // Clock switch
-  if(clockActive) switchClock();
+  // Start clock on first move
+  ensureClockStarted();
   // Check game over
   checkGameOver();
   render();
@@ -876,7 +1475,7 @@ function scheduleAI(){
       currentMoveIdx=sanHistory.length-1;
       if(cap||isEP) playSound('capture'); else playSound('move');
       if(gs.inCheck(gs.turn)) playSound('check');
-      if(clockActive) switchClock();
+      ensureClockStarted();
       checkGameOver();
       render();
     }
@@ -906,6 +1505,10 @@ function checkGameOver(){
 }
 
 function showGameOver(title,msg){
+  const result = title.toLowerCase().includes('checkmate')||title.toLowerCase().includes('wins')||title.toLowerCase().includes('time')
+    ? (msg.toLowerCase().includes('white wins')?'1 – 0':(msg.toLowerCase().includes('black wins')?'0 – 1':(title.toLowerCase().includes('white wins')?'1 – 0':(title.toLowerCase().includes('black wins')?'0 – 1':'½ – ½'))))
+    : '½ – ½';
+  document.getElementById('go-result').textContent=result;
   document.getElementById('go-title').textContent=title;
   document.getElementById('go-msg').textContent=msg;
   document.getElementById('gameover-modal').classList.add('show');
@@ -923,7 +1526,10 @@ function showPromoModal(fr,fc,tr,tc){
   choices.innerHTML='';
   ['Q','R','B','N'].forEach(t=>{
     const span=document.createElement('span');
-    span.textContent=PIECES[color+t];
+    span.className=color==='w'?'white':'black';
+    span.style.color=color==='w'?'#fff':'#1a1a1a';
+    span.style.webkitTextStroke=color==='w'?'1.25px #1a1a1a':'0';
+    span.textContent=FILLED[t];
     span.onclick=()=>{
       document.getElementById('modal').classList.remove('show');
       executeMove(pendingPromo.fr,pendingPromo.fc,pendingPromo.tr,pendingPromo.tc,t);
@@ -951,7 +1557,8 @@ function onPieceMouseDown(e){
   dragSrc={r,c};
   selected={r,c};
   legalSquares=gs.legalMoves(r,c);
-  dragEl.textContent=PIECES[p.c+p.t];
+  dragEl.textContent=FILLED[p.t];
+  dragEl.className=p.c==='w'?'white':'black';
   dragEl.style.display='block';
   moveDrag(e.clientX,e.clientY);
   e.target.classList.add('dragging');
@@ -995,7 +1602,8 @@ function onPieceTouchStart(e){
   dragR=r; dragC=c; dragSrc={r,c};
   selected={r,c};
   legalSquares=gs.legalMoves(r,c);
-  dragEl.textContent=PIECES[p.c+p.t];
+  dragEl.textContent=FILLED[p.t];
+  dragEl.className=p.c==='w'?'white':'black';
   dragEl.style.display='block';
   const t=e.touches[0];
   moveDrag(t.clientX,t.clientY);
@@ -1038,27 +1646,25 @@ function formatTime(s){
   return `${m}:${sec.toString().padStart(2,'0')}`;
 }
 function updateClockDisplay(){
-  document.getElementById('time-white').textContent=formatTime(times.w);
-  document.getElementById('time-black').textContent=formatTime(times.b);
-  document.getElementById('time-white').classList.toggle('low',times.w<30);
-  document.getElementById('time-black').classList.toggle('low',times.b<30);
-  document.getElementById('clock-white').classList.toggle('active',clockActive&&gs.turn==='w');
-  document.getElementById('clock-black').classList.toggle('active',clockActive&&gs.turn==='b');
-}
-function toggleClock(){
-  if(!clockActive){
-    clockActive=true;
-    document.getElementById('clock-btn').textContent='Stop';
-    clockInterval=setInterval(tickClock,1000);
+  const bottomColor = flipped?'b':'w';
+  const topColor    = flipped?'w':'b';
+  const fmt=formatTime;
+  const tEl=document.getElementById('clock-top');
+  const bEl=document.getElementById('clock-bottom');
+  if(timeControl===0){
+    tEl.textContent='∞';
+    bEl.textContent='∞';
   } else {
-    stopClock();
-    document.getElementById('clock-btn').textContent='Start';
+    tEl.textContent=fmt(times[topColor]);
+    bEl.textContent=fmt(times[bottomColor]);
   }
+  tEl.classList.toggle('low', timeControl>0 && times[topColor]<30 && times[topColor]>0);
+  bEl.classList.toggle('low', timeControl>0 && times[bottomColor]<30 && times[bottomColor]>0);
 }
+function toggleClock(){ /* deprecated — auto-starts on first move */ }
 function stopClock(){
   clockActive=false;
   if(clockInterval){ clearInterval(clockInterval); clockInterval=null; }
-  document.getElementById('clock-btn').textContent='Start';
 }
 function tickClock(){
   if(gs.gameOver){stopClock();return;}
@@ -1081,7 +1687,6 @@ function setTimeControl(){
   timeControl=v;
   times={w:v,b:v};
   stopClock();
-  document.getElementById('clock-btn').textContent='Start';
   updateClockDisplay();
 }
 
@@ -1120,10 +1725,30 @@ function flipBoard(){
   render();
 }
 
-function toggleTheme(){
-  darkMode=!darkMode;
+function setTheme(dark){
+  darkMode=dark;
   document.body.classList.toggle('light-theme',!darkMode);
-  document.getElementById('theme-btn').textContent=darkMode?'☀ Light':'🌙 Dark';
+  document.getElementById('seg-dark').classList.toggle('active',darkMode);
+  document.getElementById('seg-light').classList.toggle('active',!darkMode);
+}
+function toggleTheme(){ setTheme(!darkMode); }
+
+function resign(){
+  if(gs.gameOver) return;
+  const who = gs.turn==='w'?'White':'Black';
+  if(!confirm(who+' resigns?')) return;
+  gs.gameOver=true;
+  const winner = gs.turn==='w'?'Black':'White';
+  playSound('gameover');
+  showGameOver(winner+' wins',who+' resigned.');
+}
+
+// Auto-start clock on first move (chess.com style)
+function ensureClockStarted(){
+  if(timeControl>0 && !clockActive && !gs.gameOver){
+    clockActive=true;
+    if(!clockInterval) clockInterval=setInterval(tickClock,1000);
+  }
 }
 
 function changeMode(){
