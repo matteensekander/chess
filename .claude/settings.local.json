@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(gunzip -c \"/mnt/c/Users/Matthew/.claude/projects/--wsl-localhost-Ubuntu-home-matthew-opencode-projects-chess/9fbb6095-fffa-4ade-9d82-2928756f04ea/tool-results/webfetch-1779084380148-j56zx5.bin\")",
+      "Read(//mnt/c/Users/Matthew/.claude/projects/--wsl-localhost-Ubuntu-home-matthew-opencode-projects-chess/9fbb6095-fffa-4ade-9d82-2928756f04ea/tool-results/**)",
+      "Bash(xxd \"/mnt/c/Users/Matthew/.claude/projects/--wsl-localhost-Ubuntu-home-matthew-opencode-projects-chess/9fbb6095-fffa-4ade-9d82-2928756f04ea/tool-results/webfetch-1779084380148-j56zx5.bin\")",
+      "Bash(curl -s --compressed \"https://api.anthropic.com/v1/design/h/TMfMRnS5NkakyLpMuUCLmA\")",
+      "Bash(grep -E '\\(color|font|background|border|padding|margin|width|height|#[0-9a-fA-F]{3,6}|rgb|rgba|px|rem|em|%|button|header|nav|modal|card|layout|grid|flex|component|style|theme|readme|design\\)')",
+      "Read(///wsl.localhost/Ubuntu//**)",
+      "Bash(curl -s \"https://api.anthropic.com/v1/design/h/TMfMRnS5NkakyLpMuUCLmA\" -H \"Accept-Encoding: identity\")",
+      "Bash(tar -tzf design.tar.gz)",
+      "Bash(tar -xf design.tar.gz)",
+      "Bash(tar -xzf design.tar.gz)",
+      "Bash(cp /tmp/chess/project/Chess.html //wsl.localhost/Ubuntu/home/matthew/opencode-projects/chess/index.html)",
+      "Read(///wsl.localhost/Ubuntu/home/matthew/opencode-projects/chess/**)",
+      "Bash(git -C //wsl.localhost/Ubuntu/home/matthew/opencode-projects/chess config --global --add safe.directory '%\\(prefix\\)///wsl.localhost/Ubuntu/home/matthew/opencode-projects/chess')",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}
