@@ -533,6 +533,146 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(1
   width:100%;
 }
 
+/* ── Online Multiplayer UI ─────────────────────────── */
+#lobby-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,10,18,.88);backdrop-filter:blur(10px);
+  z-index:200;align-items:center;justify-content:center;padding:20px;
+}
+#lobby-overlay.show{display:flex}
+#lobby-box{
+  background:var(--panel);border:1px solid var(--border);border-radius:20px;
+  padding:36px 40px;max-width:460px;width:100%;
+  box-shadow:0 40px 100px -20px rgba(0,0,0,.7);
+}
+.lobby-head{text-align:center;margin-bottom:28px}
+.lobby-head .lbrand{
+  width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(135deg,#f5c542,#d99c1b);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;margin:0 auto 14px;
+  box-shadow:0 6px 20px -6px rgba(245,197,66,.55);
+}
+.lobby-head h2{font-size:22px;font-weight:700;margin-bottom:6px}
+.lobby-head p{color:var(--text-2);font-size:14px}
+.lobby-section{display:flex;flex-direction:column;gap:14px}
+.lobby-input{
+  background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:10px;padding:11px 14px;font-size:14px;font-family:inherit;width:100%;
+  transition:border-color .15s;outline:none;
+}
+.lobby-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,162,247,.15)}
+.lobby-input::placeholder{color:var(--text-3)}
+.lobby-input.code{
+  text-transform:uppercase;letter-spacing:4px;font-size:18px;font-weight:700;
+  font-family:'JetBrains Mono',monospace;text-align:center;
+}
+.lobby-btn{
+  width:100%;padding:13px;border:0;border-radius:10px;cursor:pointer;
+  font-size:14px;font-weight:700;font-family:inherit;
+  transition:filter .15s,transform .05s;
+}
+.lobby-btn:active{transform:translateY(1px)}
+.lobby-btn.primary{
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#fff;
+  box-shadow:0 6px 18px -8px rgba(122,162,247,.7);
+}
+.lobby-btn.primary:hover{filter:brightness(1.08)}
+.lobby-btn.secondary{
+  background:var(--panel-2);color:var(--text);border:1px solid var(--border);
+}
+.lobby-btn.secondary:hover{background:var(--panel-3)}
+.lobby-divider{
+  display:flex;align-items:center;gap:10px;color:var(--text-3);font-size:12px;font-weight:600;
+}
+.lobby-divider::before,.lobby-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.lobby-waiting{text-align:center;padding:8px 0}
+.room-code-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;
+  letter-spacing:8px;padding:16px 24px;
+  background:var(--panel-2);border:1px solid var(--border-strong);
+  border-radius:14px;margin-bottom:12px;color:var(--accent);
+  cursor:pointer;transition:background .15s;user-select:all;
+}
+.room-code-badge:hover{background:var(--panel-3)}
+.lobby-waiting p{color:var(--text-2);font-size:13px;margin-bottom:6px}
+.lobby-waiting .hint{color:var(--text-3);font-size:12px;margin-bottom:16px}
+.spin{
+  width:28px;height:28px;border-radius:50%;margin:12px auto;
+  border:3px solid var(--border);border-top-color:var(--accent);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#online-badge{
+  display:none;align-items:center;gap:6px;
+  font-size:12px;font-weight:600;
+  padding:5px 10px;border-radius:8px;
+  background:var(--panel-2);border:1px solid var(--border);
+  color:var(--text-2);
+}
+#online-badge.connected{border-color:var(--success);color:var(--success)}
+#online-badge.waiting{border-color:var(--gold);color:var(--gold)}
+#online-badge.disconnected{border-color:var(--danger);color:var(--danger)}
+#online-badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+.opp-banner{
+  display:none;text-align:center;
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+  border-radius:10px;padding:10px 16px;margin-bottom:8px;
+  color:var(--danger);font-size:13px;font-weight:600;
+}
+.opp-banner.show{display:block}
+
+/* chat */
+#chat-card{display:none}
+#chat-messages{
+  height:160px;overflow-y:auto;
+  font-size:13px;line-height:1.5;
+  background:var(--panel-2);border-radius:10px;
+  padding:8px;margin-bottom:10px;
+  scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;
+}
+#chat-messages::-webkit-scrollbar{width:4px}
+#chat-messages::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px}
+.chat-msg{padding:3px 0}
+.chat-msg .cn{font-weight:700;margin-right:5px}
+.chat-msg .ct{color:var(--text-2)}
+.chat-msg.me .cn{color:var(--accent)}
+.chat-msg.opp .cn{color:var(--gold)}
+.chat-msg.sys{color:var(--text-3);font-style:italic}
+.chat-row{display:flex;gap:6px}
+.chat-row input{
+  flex:1;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;
+}
+.chat-row input:focus{border-color:var(--accent)}
+.chat-row button{
+  padding:8px 14px;border-radius:8px;border:0;
+  background:var(--accent);color:#fff;font-weight:700;font-size:13px;
+  cursor:pointer;font-family:inherit;white-space:nowrap;
+}
+
+#draw-resp-banner{
+  display:none;
+  background:rgba(122,162,247,.08);border:1px solid rgba(122,162,247,.25);
+  border-radius:10px;padding:12px 14px;margin-bottom:6px;
+  font-size:13px;
+}
+#draw-resp-banner.show{display:flex;align-items:center;gap:10px}
+#draw-resp-banner span{flex:1;color:var(--text-2)}
+#draw-resp-banner .accept{background:var(--success);border:0;color:#fff;padding:5px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px}
+#draw-resp-banner .decline{background:var(--panel-2);border:1px solid var(--border);color:var(--text-2);padding:5px 12px;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px}
+
+.spectator-bar{
+  display:none;text-align:center;
+  background:rgba(245,197,66,.06);border:1px solid rgba(245,197,66,.2);
+  border-radius:10px;padding:8px;margin-bottom:8px;
+  color:var(--gold);font-size:12px;font-weight:600;letter-spacing:.4px;
+}
+.spectator-bar.show{display:block}
+
 /* responsive */
 @media(max-width:980px){
   #app{grid-template-columns:1fr;justify-items:center}
@@ -567,12 +707,44 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(1
   </div>
 </div>
 
+<!-- Online lobby overlay -->
+<div id="lobby-overlay">
+  <div id="lobby-box">
+    <div class="lobby-head">
+      <div class="lbrand">♞</div>
+      <h2>Play Online</h2>
+      <p>Create a room or join with a code</p>
+    </div>
+    <div class="lobby-section" id="lobby-create-section">
+      <input class="lobby-input" id="lobby-name" type="text" placeholder="Your name (optional)" maxlength="24">
+      <button class="lobby-btn primary" onclick="createRoom()">Create Room</button>
+      <div class="lobby-divider">join existing</div>
+      <input class="lobby-input code" id="lobby-code-input" type="text" placeholder="ABCD" maxlength="4" onkeydown="if(event.key==='Enter')joinRoom()">
+      <button class="lobby-btn secondary" onclick="joinRoom()">Join Room</button>
+    </div>
+    <div id="lobby-waiting-section" style="display:none">
+      <div class="lobby-waiting">
+        <div class="room-code-badge" id="lobby-code-display" onclick="copyRoomCode()" title="Click to copy"></div>
+        <p>Share this code with your friend</p>
+        <p class="hint">They can join at the same URL</p>
+        <div class="spin"></div>
+        <p>Waiting for opponent&hellip;</p>
+      </div>
+    </div>
+    <button class="lobby-btn secondary" style="margin-top:16px" onclick="cancelOnline()">Cancel</button>
+  </div>
+</div>
+
 <div id="topbar">
   <div class="brand">
     <div class="brand-mark">♞</div>
     <div class="brand-name">Gambit<span class="dot">.</span></div>
   </div>
   <div class="topbar-right">
+    <div id="online-badge">
+      <div class="dot"></div>
+      <span id="online-badge-text">Connecting</span>
+    </div>
     <div class="seg" role="tablist" aria-label="Theme">
       <button id="seg-dark" class="active" onclick="setTheme(true)" title="Dark theme">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -588,6 +760,8 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(1
 
 <div id="app">
   <div id="board-wrap">
+    <div class="spectator-bar" id="spectator-bar">SPECTATING</div>
+    <div class="opp-banner" id="opp-banner"></div>
     <!-- Top player (opponent) -->
     <div class="player-strip" id="player-top">
       <div class="who">
@@ -658,6 +832,7 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(1
         <select id="mode-select" onchange="changeMode()">
           <option value="pvp">Two Players (Local)</option>
           <option value="ai">vs Computer</option>
+          <option value="online">Online Multiplayer</option>
         </select>
       </div>
       <div id="ai-options" style="display:none">
@@ -696,10 +871,25 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(1
     </div>
 
     <div class="card" style="padding:14px">
+      <div id="draw-resp-banner">
+        <span id="draw-resp-text">Opponent offers a draw</span>
+        <button class="accept" onclick="respondDraw(true)">Accept</button>
+        <button class="decline" onclick="respondDraw(false)">Decline</button>
+      </div>
       <button class="draw-btn" onclick="offerDraw()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>
         Offer Draw
       </button>
+    </div>
+
+    <div class="card" id="chat-card">
+      <div class="card-title">Chat</div>
+      <div id="chat-messages"></div>
+      <div class="chat-row">
+        <input type="text" id="chat-input" placeholder="Say something…" maxlength="300"
+          onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()">Send</button>
+      </div>
     </div>
   </aside>
 </div>
@@ -1403,6 +1593,7 @@ function gotoMove(idx){
 function onSquareClick(e){
   if(gs.gameOver||aiThinking) return;
   if(mode==='ai'&&gs.turn===aiColor) return;
+  if(onlineMode&&(onlineRole!=='player'||gs.turn!==myColor)) return;
   const r=+e.currentTarget.dataset.r;
   const c=+e.currentTarget.dataset.c;
   handleSquareSelect(r,c);
@@ -1451,8 +1642,24 @@ function executeMove(fr,fc,tr,tc,promo){
   if(gs.inCheck(gs.turn)) playSound('check');
   // Start clock on first move
   ensureClockStarted();
+  // Broadcast in online mode
+  if(onlineMode && onlineRole==='player'){
+    wsSend({type:'move', fr, fc, tr, tc, promo: promo||'Q', san});
+  }
   // Check game over
   checkGameOver();
+  if(gs.gameOver && onlineMode){
+    const lastH=gs.history[gs.history.length-1];
+    const col=lastH?.piece?.c;
+    let result='½-½', title='Draw', message='Draw by stalemate.';
+    if(gs.inCheck(gs.turn)){
+      result=col==='w'?'1-0':'0-1';
+      title='Checkmate!';
+      const winner=col==='w'?'White':'Black';
+      message=winner+' wins by checkmate.';
+    }
+    wsSend({type:'game-over', title, message, result});
+  }
   render();
   // AI move
   if(!gs.gameOver&&mode==='ai'&&gs.turn===aiColor){
@@ -1549,6 +1756,7 @@ let dragR=-1,dragC=-1;
 function onPieceMouseDown(e){
   if(gs.gameOver||aiThinking) return;
   if(mode==='ai'&&gs.turn===aiColor) return;
+  if(onlineMode&&(onlineRole!=='player'||gs.turn!==myColor)) return;
   e.preventDefault();
   const r=+e.target.dataset.r, c=+e.target.dataset.c;
   const p=gs.board[r][c];
@@ -1594,6 +1802,7 @@ let touchMoved=false;
 function onPieceTouchStart(e){
   if(gs.gameOver||aiThinking) return;
   if(mode==='ai'&&gs.turn===aiColor) return;
+  if(onlineMode&&(onlineRole!=='player'||gs.turn!==myColor)) return;
   e.preventDefault();
   const r=+e.target.dataset.r, c=+e.target.dataset.c;
   const p=gs.board[r][c];
@@ -1694,6 +1903,11 @@ function setTimeControl(){
 //  GAME CONTROLS
 // ─────────────────────────────────────────────
 function newGame(){
+  if(onlineMode && wsConn && wsConn.readyState === WebSocket.OPEN){
+    // In online mode just reset local state without bothering server
+    document.getElementById('gameover-modal').classList.remove('show');
+    return;
+  }
   stopClock();
   gs=new GameState();
   selected=null; legalSquares=[];
@@ -1708,6 +1922,7 @@ function newGame(){
 
 function undoMove(){
   if(aiThinking) return;
+  if(onlineMode){ return; }
   if(mode==='ai'){
     // Undo both AI and player move
     gs.undoLast(); sanHistory.pop();
@@ -1735,6 +1950,16 @@ function toggleTheme(){ setTheme(!darkMode); }
 
 function resign(){
   if(gs.gameOver) return;
+  if(onlineMode && onlineRole==='player'){
+    const who = myColor==='w'?'White':'Black';
+    if(!confirm(who+' resigns?')) return;
+    wsSend({type:'resign'});
+    gs.gameOver=true;
+    const winner = myColor==='w'?'Black':'White';
+    playSound('gameover');
+    showGameOver(winner+' wins', who+' resigned.');
+    return;
+  }
   const who = gs.turn==='w'?'White':'Black';
   if(!confirm(who+' resigns?')) return;
   gs.gameOver=true;
@@ -1755,6 +1980,11 @@ function changeMode(){
   mode=document.getElementById('mode-select').value;
   const aiOpts=document.getElementById('ai-options');
   aiOpts.style.display=mode==='ai'?'flex':'none';
+  if(mode==='online'){
+    showLobby();
+    return;
+  }
+  cancelOnline();
   newGame();
 }
 
@@ -1765,9 +1995,25 @@ function changeSide(){
 
 function offerDraw(){
   if(gs.gameOver) return;
+  if(onlineMode && onlineRole==='player'){
+    wsSend({type:'draw-offer'});
+    addChatMsg('You offered a draw','sys');
+    return;
+  }
   if(confirm('Offer draw? (Both sides must agree)')){
     gs.gameOver=true;
     showGameOver('Draw','Draw by mutual agreement.');
+  }
+}
+
+function respondDraw(accepted){
+  document.getElementById('draw-resp-banner').classList.remove('show');
+  wsSend({type:'draw-response',accepted});
+  if(accepted){
+    gs.gameOver=true;
+    showGameOver('Draw','Draw by mutual agreement.');
+  } else {
+    addChatMsg('Draw declined','sys');
   }
 }
 
@@ -1775,6 +2021,343 @@ function offerDraw(){
 document.getElementById('diff-select').addEventListener('change',function(){
   aiDepth=+this.value;
 });
+
+// ─────────────────────────────────────────────
+//  ONLINE MULTIPLAYER
+// ─────────────────────────────────────────────
+
+// UPDATE THIS after deploying to Render:
+const WS_URL = 'wss://gambit-chess-server.onrender.com';
+
+let wsConn = null;
+let onlineMode = false;
+let myColor = null;
+let onlineRole = 'player';
+let opponentName = 'Opponent';
+let currentRoomCode = null;
+let wsReconnectTimer = null;
+let wsPingInterval = null;
+
+function wsSend(msg){
+  if(wsConn && wsConn.readyState === WebSocket.OPEN){
+    wsConn.send(JSON.stringify(msg));
+  }
+}
+
+function setOnlineBadge(state, text){
+  const b = document.getElementById('online-badge');
+  const t = document.getElementById('online-badge-text');
+  b.className = '';
+  b.style.display = 'flex';
+  b.classList.add(state);
+  t.textContent = text;
+}
+
+function hideOnlineBadge(){
+  document.getElementById('online-badge').style.display = 'none';
+}
+
+function showLobby(){
+  onlineMode = false;
+  document.getElementById('lobby-create-section').style.display = 'flex';
+  document.getElementById('lobby-waiting-section').style.display = 'none';
+  document.getElementById('lobby-overlay').classList.add('show');
+}
+
+function hideLobby(){
+  document.getElementById('lobby-overlay').classList.remove('show');
+}
+
+function cancelOnline(){
+  hideLobby();
+  onlineMode = false;
+  myColor = null;
+  currentRoomCode = null;
+  onlineRole = 'player';
+  if(wsConn){ wsConn.close(); wsConn = null; }
+  clearInterval(wsPingInterval);
+  hideOnlineBadge();
+  document.getElementById('chat-card').style.display = 'none';
+  document.getElementById('spectator-bar').classList.remove('show');
+  document.getElementById('opp-banner').classList.remove('show');
+  document.getElementById('draw-resp-banner').classList.remove('show');
+  document.getElementById('mode-select').value = 'pvp';
+  changeMode();
+}
+
+function connectWS(onOpen){
+  if(wsConn){ wsConn.close(); }
+  setOnlineBadge('waiting','Connecting…');
+  const ws = new WebSocket(WS_URL);
+  wsConn = ws;
+
+  ws.onopen = () => {
+    setOnlineBadge('connected','Connected');
+    clearInterval(wsPingInterval);
+    wsPingInterval = setInterval(()=> wsSend({type:'ping'}), 25000);
+    if(onOpen) onOpen();
+  };
+
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+    handleWSMessage(msg);
+  };
+
+  ws.onclose = () => {
+    clearInterval(wsPingInterval);
+    if(onlineMode){
+      setOnlineBadge('disconnected','Disconnected');
+      showOppBanner('Connection lost. Reconnecting…');
+      wsReconnectTimer = setTimeout(()=>{
+        if(onlineMode && currentRoomCode){
+          const name = document.getElementById('lobby-name').value.trim() || 'Player';
+          connectWS(()=> wsSend({type:'join-room', code:currentRoomCode, name}));
+        }
+      }, 3000);
+    }
+  };
+
+  ws.onerror = () => {
+    setOnlineBadge('disconnected','Error');
+  };
+}
+
+function createRoom(){
+  const name = (document.getElementById('lobby-name').value.trim() || 'Player').slice(0,24);
+  connectWS(()=>{
+    wsSend({type:'create-room', name});
+  });
+}
+
+function joinRoom(){
+  const code = document.getElementById('lobby-code-input').value.trim().toUpperCase();
+  if(code.length !== 4){ alert('Enter a 4-letter room code.'); return; }
+  const name = (document.getElementById('lobby-name').value.trim() || 'Player').slice(0,24);
+  connectWS(()=>{
+    wsSend({type:'join-room', code, name});
+  });
+}
+
+function copyRoomCode(){
+  if(!currentRoomCode) return;
+  navigator.clipboard.writeText(currentRoomCode).then(()=>{
+    const el = document.getElementById('lobby-code-display');
+    const prev = el.textContent;
+    el.textContent = 'Copied!';
+    setTimeout(()=>{ el.textContent = currentRoomCode; }, 1200);
+  });
+}
+
+function startOnlineGame(color, oppName, isSpectator){
+  hideLobby();
+  onlineMode = true;
+  onlineRole = isSpectator ? 'spectator' : 'player';
+  myColor = isSpectator ? null : color;
+  opponentName = oppName || 'Opponent';
+
+  // Flip board so my pieces are at bottom
+  if(!isSpectator){
+    flipped = (color === 'b');
+  } else {
+    flipped = false;
+  }
+
+  // Update player strips
+  if(!isSpectator){
+    const myName = document.getElementById('lobby-name').value.trim() || 'Player';
+    const myEl = flipped ? document.getElementById('player-top') : document.getElementById('player-bottom');
+    const oppEl = flipped ? document.getElementById('player-bottom') : document.getElementById('player-top');
+    myEl.querySelector('.player-name').textContent = myName + ' (You)';
+    oppEl.querySelector('.player-name').textContent = opponentName;
+  }
+
+  document.getElementById('chat-card').style.display = 'block';
+  if(isSpectator) document.getElementById('spectator-bar').classList.add('show');
+  setOnlineBadge('connected', currentRoomCode || 'Online');
+
+  newGame();
+}
+
+function showOppBanner(msg){
+  const b = document.getElementById('opp-banner');
+  b.textContent = msg;
+  b.classList.add('show');
+}
+function hideOppBanner(){
+  document.getElementById('opp-banner').classList.remove('show');
+}
+
+function addChatMsg(text, type, name, color){
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (type || '');
+  if(type === 'sys'){
+    div.innerHTML = `<span class="ct">${escapeHtml(text)}</span>`;
+  } else {
+    const isMine = (color === myColor && onlineRole==='player');
+    div.className = 'chat-msg ' + (isMine ? 'me' : 'opp');
+    div.innerHTML = `<span class="cn">${escapeHtml(name||'?')}:</span><span class="ct">${escapeHtml(text)}</span>`;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function sendChat(){
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if(!text || !onlineMode) return;
+  wsSend({type:'chat', text});
+  inp.value = '';
+}
+
+function handleWSMessage(msg){
+  switch(msg.type){
+
+    case 'room-created':
+      currentRoomCode = msg.code;
+      document.getElementById('lobby-code-display').textContent = msg.code;
+      document.getElementById('lobby-create-section').style.display = 'none';
+      document.getElementById('lobby-waiting-section').style.display = 'block';
+      setOnlineBadge('waiting', 'Waiting · ' + msg.code);
+      break;
+
+    case 'room-joined':
+      currentRoomCode = msg.code;
+      startOnlineGame(msg.color, msg.opponentName || 'Opponent', false);
+      if(msg.gameState) applyOnlineGameState(msg.gameState);
+      if(msg.chatHistory) msg.chatHistory.forEach(c => addChatMsg(c.text, null, c.name, c.color));
+      hideOppBanner();
+      break;
+
+    case 'spectating':
+      currentRoomCode = msg.code;
+      startOnlineGame(null, null, true);
+      if(msg.gameState) applyOnlineGameState(msg.gameState);
+      if(msg.chatHistory) msg.chatHistory.forEach(c => addChatMsg(c.text, null, c.name, c.color));
+      if(msg.players){
+        const w = msg.players.find(p=>p.color==='w');
+        const b = msg.players.find(p=>p.color==='b');
+        document.getElementById('name-top').textContent = b?.name || 'Black';
+        document.getElementById('name-bottom').textContent = w?.name || 'White';
+      }
+      break;
+
+    case 'opponent-joined':
+      opponentName = msg.opponentName || 'Opponent';
+      const oppEl2 = flipped ? document.getElementById('player-bottom') : document.getElementById('player-top');
+      oppEl2.querySelector('.player-name').textContent = opponentName;
+      hideOppBanner();
+      addChatMsg(opponentName + ' joined the room', 'sys');
+      break;
+
+    case 'game-start':
+      if(msg.players){
+        const w = msg.players.find(p=>p.color==='w');
+        const b = msg.players.find(p=>p.color==='b');
+        if(!flipped){
+          document.getElementById('name-bottom').textContent = (w?.name || 'White') + (myColor==='w' ? ' (You)' : '');
+          document.getElementById('name-top').textContent = (b?.name || 'Black') + (myColor==='b' ? ' (You)' : '');
+        } else {
+          document.getElementById('name-top').textContent = (w?.name || 'White') + (myColor==='w' ? ' (You)' : '');
+          document.getElementById('name-bottom').textContent = (b?.name || 'Black') + (myColor==='b' ? ' (You)' : '');
+        }
+      }
+      break;
+
+    case 'move':
+      if(!onlineMode) break;
+      {
+        const cap = gs.board[msg.tr][msg.tc];
+        const isEP = gs.board[msg.fr][msg.fc]?.t==='P' && gs.enPassant &&
+                     msg.tr===gs.enPassant.r && msg.tc===gs.enPassant.c;
+        const san = gs.san(msg.fr, msg.fc, msg.tr, msg.tc, msg.promo);
+        gs.makeMove(msg.fr, msg.fc, msg.tr, msg.tc, msg.promo || 'Q');
+        sanHistory.push(san);
+        currentMoveIdx = sanHistory.length - 1;
+        if(cap || isEP) playSound('capture'); else playSound('move');
+        if(gs.inCheck(gs.turn)) playSound('check');
+        checkGameOver();
+        render();
+      }
+      break;
+
+    case 'chat':
+      addChatMsg(msg.text, null, msg.name, msg.color);
+      break;
+
+    case 'player-disconnected':
+      showOppBanner((msg.name || 'Opponent') + ' disconnected. Waiting to reconnect…');
+      addChatMsg((msg.name || 'Opponent') + ' disconnected', 'sys');
+      break;
+
+    case 'player-reconnected':
+      hideOppBanner();
+      addChatMsg((msg.name || 'Opponent') + ' reconnected', 'sys');
+      break;
+
+    case 'game-over':
+      if(!gs.gameOver){
+        gs.gameOver = true;
+        playSound('gameover');
+        showGameOver(msg.title || 'Game Over', msg.message || '');
+      }
+      break;
+
+    case 'resign':
+      {
+        const resignColor = msg.color;
+        const winner = resignColor==='w' ? 'Black' : 'White';
+        const loser = resignColor==='w' ? 'White' : 'Black';
+        gs.gameOver = true;
+        playSound('gameover');
+        showGameOver(winner+' wins', loser+' resigned.');
+      }
+      break;
+
+    case 'draw-offer':
+      document.getElementById('draw-resp-banner').classList.add('show');
+      document.getElementById('draw-resp-text').textContent =
+        (opponentName || 'Opponent') + ' offers a draw';
+      break;
+
+    case 'draw-response':
+      if(msg.accepted){
+        gs.gameOver = true;
+        showGameOver('Draw', 'Draw by mutual agreement.');
+      } else {
+        addChatMsg('Draw offer declined', 'sys');
+      }
+      break;
+
+    case 'error':
+      alert(msg.message || 'Error');
+      break;
+
+    case 'pong':
+      break;
+  }
+}
+
+function applyOnlineGameState(state){
+  if(!state) return;
+  try {
+    gs = new GameState();
+    if(state.moves){
+      for(const m of state.moves){
+        gs.makeMove(m.fr, m.fc, m.tr, m.tc, m.promo||'Q');
+        const san = m.san || '';
+        sanHistory.push(san);
+        currentMoveIdx = sanHistory.length - 1;
+      }
+    }
+    render();
+  } catch(e){ /* ignore */ }
+}
 
 // ─────────────────────────────────────────────
 //  INIT
