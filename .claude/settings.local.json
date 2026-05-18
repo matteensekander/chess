@@ -18,7 +18,9 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(git commit -m 'Update WebSocket URL to Render server *)"
+      "Bash(git commit -m 'Update WebSocket URL to Render server *)",
+      "Bash(npm install *)",
+      "Bash(node *)"
     ]
   }
 }
