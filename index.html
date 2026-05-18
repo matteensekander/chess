@@ -2220,6 +2220,7 @@ function handleWSMessage(msg){
 
     case 'room-created':
       currentRoomCode = msg.code;
+      myColor = msg.color; // store now; used when opponent-joined fires
       document.getElementById('lobby-code-display').textContent = msg.code;
       document.getElementById('lobby-create-section').style.display = 'none';
       document.getElementById('lobby-waiting-section').style.display = 'block';
@@ -2248,11 +2249,9 @@ function handleWSMessage(msg){
       break;
 
     case 'opponent-joined':
-      opponentName = msg.opponentName || 'Opponent';
-      const oppEl2 = flipped ? document.getElementById('player-bottom') : document.getElementById('player-top');
-      oppEl2.querySelector('.player-name').textContent = opponentName;
-      hideOppBanner();
-      addChatMsg(opponentName + ' joined the room', 'sys');
+      // myColor was stored when room-created fired; now start the game for Player 1
+      startOnlineGame(myColor, msg.opponentName || 'Opponent', false);
+      addChatMsg((msg.opponentName || 'Opponent') + ' joined the room', 'sys');
       break;
 
     case 'game-start':
