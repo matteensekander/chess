@@ -17,7 +17,8 @@
       "Bash(git -C //wsl.localhost/Ubuntu/home/matthew/opencode-projects/chess config --global --add safe.directory '%\\(prefix\\)///wsl.localhost/Ubuntu/home/matthew/opencode-projects/chess')",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git commit -m 'Update WebSocket URL to Render server *)"
     ]
   }
 }
