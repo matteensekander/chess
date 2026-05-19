@@ -1977,6 +1977,7 @@ function ensureClockStarted(){
 }
 
 function changeMode(){
+  const prev=mode;
   mode=document.getElementById('mode-select').value;
   const aiOpts=document.getElementById('ai-options');
   aiOpts.style.display=mode==='ai'?'flex':'none';
@@ -1984,7 +1985,7 @@ function changeMode(){
     showLobby();
     return;
   }
-  cancelOnline();
+  if(prev==='online') cancelOnline();
   newGame();
 }
 
@@ -2081,8 +2082,6 @@ function cancelOnline(){
   document.getElementById('spectator-bar').classList.remove('show');
   document.getElementById('opp-banner').classList.remove('show');
   document.getElementById('draw-resp-banner').classList.remove('show');
-  document.getElementById('mode-select').value = 'pvp';
-  changeMode();
 }
 
 function connectWS(onOpen){
