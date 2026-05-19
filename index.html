@@ -840,8 +840,8 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(1
           <label>Difficulty</label>
           <select id="diff-select">
             <option value="1">Easy</option>
-            <option value="3" selected>Medium</option>
-            <option value="5">Hard</option>
+            <option value="2" selected>Medium</option>
+            <option value="3">Hard</option>
           </select>
         </div>
         <div class="form-row">
@@ -1373,6 +1373,11 @@ function minimax(gs, depth, alpha, beta, maximizing){
 function getAIMove(gs, depth){
   const color=gs.turn;
   const maximizing=color==='w';
+  // Easy mode: 35% chance to play a random legal move so it's genuinely beatable
+  if(depth===1 && Math.random()<0.35){
+    const moves=gs.allLegalMoves(color);
+    return moves.length?moves[Math.floor(Math.random()*moves.length)]:null;
+  }
   const result=minimax(gs,depth,-Infinity,Infinity,maximizing);
   return result.move;
 }
@@ -1386,7 +1391,7 @@ let legalSquares=[];
 let flipped=false;
 let mode='pvp';
 let aiColor='b';
-let aiDepth=3;
+let aiDepth=2;
 let sanHistory=[];
 let currentMoveIdx=-1;
 let clockActive=false;
@@ -1493,7 +1498,7 @@ function updateSidebar(){
     return c==='w'?'White':'Black';
   };
   const eloLabel=(c)=>{
-    if(mode==='ai') return c===aiColor?('Engine · '+({1:'800',3:'1500',5:'2000'}[aiDepth]||'1500')):'You · 1500';
+    if(mode==='ai') return c===aiColor?('Engine · '+({1:'600',2:'1000',3:'1500'}[aiDepth]||'1000')):'You · 1500';
     return (c==='w'?'White':'Black')+' · 1500';
   };
   document.getElementById('name-top').textContent=playerLabel(topColor);
